@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Nucaza Beauty PH</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Firebase v9 compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#f6f8fc;--white:#ffffff;--border:#e0e0e0;
+            --text:#202124;--sub:#5f6368;--accent:#1a73e8;
+            --hover:#f0f4f9;--active-bg:#d3e3fd;
+            --ongoing:#e65100;--processing:#1565c0;--complete:#2e7d32;
+            --danger:#c5221f;
+        }
+        body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+        /* HEADER */
+        header{height:64px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;z-index:100;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+        .logo{display:flex;align-items:center;gap:10px}
+        .logo img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid #ddd}
+        .logo-text{font-family:'Google Sans',sans-serif;font-size:20px;font-weight:500}
+        .logo-sub{font-size:11px;color:var(--sub)}
+        .header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+        .badge{background:var(--text);color:#fff;font-size:11px;font-weight:500;padding:4px 10px;border-radius:12px;letter-spacing:.5px}
+        .icon-btn{background:none;border:1px solid var(--border);border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--sub);transition:background .15s}
+        .icon-btn:hover{background:var(--hover)}
+        .icon-btn svg{width:18px;height:18px}
+
+        /* LAYOUT */
+        .app-body{display:flex;flex:1;overflow:hidden}
+
+        /* SIDEBAR */
+        aside{width:240px;background:var(--bg);padding:8px 0;overflow-y:auto;flex-shrink:0}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:8px 12px 8px 24px;border-radius:0 20px 20px 0;margin-right:12px;cursor:pointer;font-size:14px;color:var(--text);transition:background .15s;user-select:none}
+        .nav-item:hover{background:var(--hover)}
+        .nav-item.active{background:var(--active-bg);font-weight:700}
+        .nav-item svg{width:20px;height:20px;flex-shrink:0}
+        .nav-count{margin-left:auto;font-size:12px;font-weight:600}
+        .nav-section{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;padding:14px 24px 6px}
+        .nav-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+        .divider{height:1px;background:var(--border);margin:6px 12px}
+
+        /* MAIN */
+        main{flex:1;display:flex;overflow:hidden;background:var(--white);border-radius:16px 0 0 16px;margin:8px 0;border:1px solid var(--border)}
+
+        /* LIST */
+        .email-list{width:370px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+        .list-top{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0}
+        .list-title{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:500}
+        .list-count{font-size:12px;color:var(--sub);margin-left:auto}
+        .list-scroll{flex:1;overflow-y:auto}
+
+        /* ROW */
+        .row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;position:relative}
+        .row:hover{background:#f5f5f5}
+        .row.active{background:var(--active-bg)}
+        .row.unread{background:var(--white)}
+        .row.read{background:#f2f6fc}
+        .unread-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+        .read-dot{width:8px;height:8px;flex-shrink:0}
+        .avatar{width:38px;height:38px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Google Sans',sans-serif;font-size:15px;font-weight:500;flex-shrink:0}
+        .row-info{flex:1;min-width:0}
+        .row-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+        .row-name{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+        .row.unread .row-name{font-weight:700}
+        .row-date{font-size:11px;color:var(--sub);flex-shrink:0}
+        .row.unread .row-date{font-weight:700;color:var(--text)}
+        .row-email{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+        .lbadge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
+        .lb-ongoing{background:#fff3e0;color:var(--ongoing)}
+        .lb-processing{background:#e3f2fd;color:var(--processing)}
+        .lb-complete{background:#e8f5e9;color:var(--complete)}
+
+        /* EMPTY */
+        .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--sub);gap:12px;padding:40px}
+        .empty svg{width:48px;height:48px;opacity:.25}
+        .empty p{font-size:14px;text-align:center}
+
+        /* DETAIL */
+        .detail-pane{flex:1;overflow-y:auto;padding:28px 36px}
+        .detail-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--sub);gap:16px}
+        .detail-placeholder svg{width:72px;height:72px;opacity:.15}
+        .detail-placeholder h3{font-family:'Google Sans',sans-serif;font-size:20px;font-weight:400;color:#ccc}
+        .detail-placeholder p{font-size:13px}
+
+        /* TOOLBAR */
+        .dtoolbar{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+        .abtn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-size:13px;font-family:'Roboto',sans-serif;cursor:pointer;color:var(--text);font-weight:500;transition:background .15s,box-shadow .15s}
+        .abtn:hover{background:var(--hover);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+        .abtn svg{width:15px;height:15px}
+        .abtn.ong{border-color:var(--ongoing);color:var(--ongoing)}
+        .abtn.pro{border-color:var(--processing);color:var(--processing)}
+        .abtn.com{border-color:var(--complete);color:var(--complete)}
+        .abtn.del{border-color:var(--danger);color:var(--danger)}
+        .abtn.reply{border-color:var(--accent);color:var(--accent);background:#e8f0fe}
+        .abtn.reply:hover{background:#d2e3fc}
+        .abtn.active-lbl{font-weight:700;filter:brightness(.9)}
+
+        /* SUBJECT */
+        .d-subject{font-family:'Google Sans',sans-serif;font-size:22px;font-weight:400;color:var(--text);margin-bottom:18px}
+        .d-meta{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+        .d-avatar{width:46px;height:46px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Google Sans',sans-serif;font-size:18px;font-weight:500;flex-shrink:0}
+        .d-from{flex:1}
+        .d-name{font-size:15px;font-weight:500}
+        .d-addr{font-size:13px;color:var(--sub);margin-top:2px}
+        .d-dt{font-size:12px;color:var(--sub);flex-shrink:0}
+
+        /* FIELDS */
+        .field{margin-bottom:18px}
+        .flabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--sub);margin-bottom:5px}
+        .fvalue{font-size:14px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;line-height:1.5}
+        .fvalue.msg{white-space:pre-wrap;min-height:80px}
+        .svc-tag{display:inline-block;background:var(--text);color:#fff;font-size:12px;font-weight:500;padding:4px 12px;border-radius:12px}
+        .status-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;margin-bottom:18px}
+        .sb-ongoing{background:#fff3e0;color:var(--ongoing)}
+        .sb-processing{background:#e3f2fd;color:var(--processing)}
+        .sb-complete{background:#e8f5e9;color:var(--complete)}
+
+        /* DELETE CONFIRM MODAL */
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s}
+        .modal-overlay.show{opacity:1;pointer-events:all}
+        .modal{background:var(--white);border-radius:12px;padding:28px 32px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+        .modal h3{font-family:'Google Sans',sans-serif;font-size:18px;margin-bottom:10px}
+        .modal p{font-size:14px;color:var(--sub);margin-bottom:24px;line-height:1.5}
+        .modal-btns{display:flex;gap:10px;justify-content:flex-end}
+        .mbtn{padding:8px 20px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-family:'Roboto',sans-serif;font-weight:500;transition:background .15s}
+        .mbtn-cancel{background:none;border:1px solid var(--border);color:var(--text)}
+        .mbtn-cancel:hover{background:var(--hover)}
+        .mbtn-delete{background:var(--danger);color:#fff}
+        .mbtn-delete:hover{background:#a51c17}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#323232;color:#fff;font-size:13px;padding:10px 20px;border-radius:6px;transition:transform .3s;z-index:9999;pointer-events:none;font-family:'Roboto',sans-serif}
+        #toast.show{transform:translateX(-50%) translateY(0)}
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar{width:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+        ::-webkit-scrollbar-thumb:hover{background:#bbb}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <img src="logo.jpg" alt="" onerror="this.style.display='none'">
+        <div>
+            <div class="logo-text">Nucaza Beauty</div>
+            <div class="logo-sub">Admin Panel</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <span id="live-badge" style="font-size:11px;color:#2e7d32;background:#e8f5e9;padding:4px 10px;border-radius:12px;font-weight:500;display:none;">● LIVE</span>
+        <span class="badge">ADMIN</span>
+    </div>
+</header>
+
+<div class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside>
+        <div class="nav-item active" id="nav-inbox" onclick="setView('inbox')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+            Inbox
+            <span class="nav-count" id="cnt-inbox"></span>
+        </div>
+        <div class="divider"></div>
+        <div class="nav-section">Archive</div>
+        <div class="nav-item" id="nav-ongoing" onclick="setView('ongoing')">
+            <span class="nav-dot" style="background:var(--ongoing)"></span>
+            Ongoing
+            <span class="nav-count" id="cnt-ongoing"></span>
+        </div>
+        <div class="nav-item" id="nav-processing" onclick="setView('processing')">
+            <span class="nav-dot" style="background:var(--processing)"></span>
+            Processing
+            <span class="nav-count" id="cnt-processing"></span>
+        </div>
+        <div class="nav-item" id="nav-complete" onclick="setView('complete')">
+            <span class="nav-dot" style="background:var(--complete)"></span>
+            Complete
+            <span class="nav-count" id="cnt-complete"></span>
+        </div>
+        <div class="divider"></div>
+        <div class="nav-item" id="nav-all" onclick="setView('all')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            All Inquiries
+            <span class="nav-count" id="cnt-all"></span>
+        </div>
+    </aside>
+
+    <main>
+        <!-- LIST PANE -->
+        <div class="email-list">
+            <div class="list-top">
+                <span class="list-title" id="list-title">Inbox</span>
+                <span class="list-count" id="list-count"></span>
+            </div>
+            <div class="list-scroll" id="list-scroll"></div>
+        </div>
+
+        <!-- DETAIL PANE -->
+        <div class="detail-pane" id="detail-pane">
+            <div class="detail-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+                <h3>Select an inquiry</h3>
+                <p>Click a message from the list to view its details</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-overlay" id="del-modal">
+    <div class="modal">
+        <h3>Delete this inquiry?</h3>
+        <p>This will permanently remove the message from Firestore. This action cannot be undone.</p>
+        <div class="modal-btns">
+            <button class="mbtn mbtn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="mbtn mbtn-delete" onclick="confirmDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Firebase init ──────────────────────────────────────────────
+const firebaseConfig = {
+    apiKey: "AIzaSyAwhYe2ALNw6L7LOkxjf8CmK6HHSHi24Kc",
+    authDomain: "nucaza-7b296.firebaseapp.com",
+    projectId: "nucaza-7b296",
+    storageBucket: "nucaza-7b296.firebasestorage.app",
+    messagingSenderId: "486744794753",
+    appId: "1:486744794753:web:8adc954f7d7f69d8e18f80"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ── State ──────────────────────────────────────────────────────
+let allDocs   = [];   // {id, data} from Firestore
+let view      = 'inbox';
+let selectedId = null;
+let pendingDeleteId = null;
+
+// ── Real-time listener ─────────────────────────────────────────
+db.collection('inquiries')
+    .orderBy('timestamp', 'desc')
+    .onSnapshot(snapshot => {
+        allDocs = snapshot.docs.map(d => ({ id: d.id, data: d.data() }));
+        document.getElementById('live-badge').style.display = 'inline-block';
+        updateCounts();
+        renderList();
+        // Refresh detail if open
+        if (selectedId) {
+            const doc = allDocs.find(d => d.id === selectedId);
+            if (doc) renderDetail(doc);
+        }
+    }, err => {
+        console.error('Firestore error:', err);
+        toast('⚠️ Could not connect to database. Check Firestore rules.');
+    });
+
+// ── Filter ─────────────────────────────────────────────────────
+function filtered() {
+    if (view === 'inbox') return allDocs.filter(d => !d.data.label);
+    if (view === 'all')   return [...allDocs];
+    return allDocs.filter(d => d.data.label === view);
+}
+
+// ── Sidebar view switch ─────────────────────────────────────────
+function setView(v) {
+    view = v;
+    selectedId = null;
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('nav-' + v)?.classList.add('active');
+    const titles = { inbox:'Inbox', ongoing:'Ongoing', processing:'Processing', complete:'Complete', all:'All Inquiries' };
+    document.getElementById('list-title').textContent = titles[v] || v;
+    renderList();
+    showPlaceholder();
+}
+
+// ── Counts ──────────────────────────────────────────────────────
+function updateCounts() {
+    const unread = allDocs.filter(d => !d.data.label && !d.data.read).length;
+    set('cnt-inbox',     unread || '');
+    set('cnt-ongoing',   allDocs.filter(d => d.data.label==='ongoing').length   || '');
+    set('cnt-processing',allDocs.filter(d => d.data.label==='processing').length|| '');
+    set('cnt-complete',  allDocs.filter(d => d.data.label==='complete').length  || '');
+    set('cnt-all',       allDocs.length || '');
+}
+function set(id, v) { document.getElementById(id).textContent = v; }
+
+// ── Render list ─────────────────────────────────────────────────
+function renderList() {
+    const data = filtered();
+    document.getElementById('list-count').textContent = data.length ? data.length + ' item' + (data.length===1?'':'s') : '';
+    const scroll = document.getElementById('list-scroll');
+    if (!data.length) {
+        scroll.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 15h8M9 9h.01M15 9h.01"/></svg><p>No inquiries here</p></div>`;
+        return;
+    }
+    scroll.innerHTML = data.map(doc => {
+        const d = doc.data;
+        const unread = !d.read;
+        const active = doc.id === selectedId;
+        const initials = initOf(d.name);
+        const dateStr  = fmtDate(d.timestamp);
+        const badge = d.label ? `<span class="lbadge lb-${d.label}">${d.label}</span>` : '';
+        return `<div class="row ${unread?'unread':'read'} ${active?'active':''}" onclick="openDoc('${doc.id}')">
+            <div class="${unread?'unread-dot':'read-dot'}"></div>
+            <div class="avatar">${initials}</div>
+            <div class="row-info">
+                <div class="row-top">
+                    <span class="row-name">${esc(d.name||'Unknown')}</span>
+                    <span class="row-date">${dateStr}</span>
+                </div>
+                <div class="row-email"><span style="flex:1;overflow:hidden;text-overflow:ellipsis;">${esc(d.email||d.phone||'—')}</span>${badge}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Open / mark read ───────────────────────────────────────────
+async function openDoc(id) {
+    selectedId = id;
+    const doc = allDocs.find(d => d.id === id);
+    if (!doc) return;
+    if (!doc.data.read) {
+        await db.collection('inquiries').doc(id).update({ read: true });
+        // onSnapshot will re-render
+    }
+    renderList();
+    renderDetail(doc);
+}
+
+// ── Render detail ──────────────────────────────────────────────
+function renderDetail(doc) {
+    const d  = doc.data;
+    const id = doc.id;
+    const initials = initOf(d.name);
+    const dt = d.timestamp?.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
+    const dtStr = isNaN(dt) ? '—' :
+        dt.toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) + ' at ' +
+        dt.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+
+    // Label action buttons
+    const lblBtn = (key, cls, icon, label) => {
+        const active = d.label === key ? ' active-lbl' : '';
+        return `<button class="abtn ${cls}${active}" onclick="setLabel('${id}','${key}')">
+            ${icon} ${label}
+        </button>`;
+    };
+
+    const statusBar = d.label ? `<div class="status-bar sb-${d.label}">${labelIcon(d.label)} Labeled as: <strong style="text-transform:capitalize;margin-left:4px;">${d.label}</strong></div>` : '';
+
+    // Reply mailto — opens email client
+    const subj = encodeURIComponent(`Re: Your Nucaza Beauty Inquiry — ${d.service||'General'}`);
+    const body = encodeURIComponent(`Hi ${d.name||'there'},\n\nThank you for reaching out to Nucaza Beauty PH!\n\n---\nYour inquiry:\nService: ${d.service||'—'}\nMessage: ${d.message||'—'}\n---\n\nBest regards,\nNucaza Beauty PH\nnucazabeauty@gmail.com`);
+    const mailtoHref = `mailto:${d.email}?subject=${subj}&body=${body}`;
+
+    document.getElementById('detail-pane').innerHTML = `
+    <div class="dtoolbar">
+        ${lblBtn('ongoing','ong',svgClock(),'Ongoing')}
+        ${lblBtn('processing','pro',svgRefresh(),'Processing')}
+        ${lblBtn('complete','com',svgCheck(),'Complete')}
+        ${d.label ? `<button class="abtn" onclick="removeLabel('${id}')" style="margin-left:4px;">${svgX()} Remove Label</button>` : ''}
+        <div style="margin-left:auto;display:flex;gap:8px;">
+            <a href="${mailtoHref}" class="abtn reply" style="text-decoration:none;">${svgReply()} Reply via Email</a>
+            <button class="abtn del" onclick="askDelete('${id}')">${svgTrash()} Delete</button>
+        </div>
+    </div>
+
+    ${statusBar}
+
+    <div class="d-subject">Booking Inquiry — ${esc(d.service||'General')}</div>
+
+    <div class="d-meta">
+        <div class="d-avatar">${initials}</div>
+        <div class="d-from">
+            <div class="d-name">${esc(d.name||'Unknown')}</div>
+            <div class="d-addr">${esc(d.email||'no email provided')}</div>
+            ${d.phone ? `<div class="d-addr">${esc(d.phone)}</div>` : ''}
+        </div>
+        <div class="d-dt">${dtStr}</div>
+    </div>
+
+    <div>
+        <div class="field"><div class="flabel">Full Name</div><div class="fvalue">${esc(d.name||'—')}</div></div>
+        <div class="field"><div class="flabel">Email Address</div><div class="fvalue">${esc(d.email||'—')}</div></div>
+        ${d.phone ? `<div class="field"><div class="flabel">Phone Number</div><div class="fvalue">${esc(d.phone)}</div></div>` : ''}
+        <div class="field"><div class="flabel">Service Interest</div><div class="fvalue"><span class="svc-tag">${esc(d.service||'Not specified')}</span></div></div>
+        <div class="field"><div class="flabel">Message</div><div class="fvalue msg">${esc(d.message||'—')}</div></div>
+    </div>`;
+}
+
+function showPlaceholder() {
+    document.getElementById('detail-pane').innerHTML = `
+        <div class="detail-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+            <h3>Select an inquiry</h3>
+            <p>Click a message from the list to view its details</p>
+        </div>`;
+}
+
+// ── Labels ──────────────────────────────────────────────────────
+async function setLabel(id, label) {
+    const doc = allDocs.find(d => d.id === id);
+    const current = doc?.data.label;
+    const newLabel = current === label ? null : label;
+    await db.collection('inquiries').doc(id).update({ label: newLabel });
+    toast(newLabel ? `Moved to ${newLabel}` : 'Moved back to Inbox');
+}
+async function removeLabel(id) {
+    await db.collection('inquiries').doc(id).update({ label: null });
+    toast('Moved back to Inbox');
+}
+
+// ── Delete ──────────────────────────────────────────────────────
+function askDelete(id) {
+    pendingDeleteId = id;
+    document.getElementById('del-modal').classList.add('show');
+}
+function closeDeleteModal() {
+    pendingDeleteId = null;
+    document.getElementById('del-modal').classList.remove('show');
+}
+async function confirmDelete() {
+    if (!pendingDeleteId) return;
+    try {
+        await db.collection('inquiries').doc(pendingDeleteId).delete();
+        if (selectedId === pendingDeleteId) { selectedId = null; showPlaceholder(); }
+        toast('Inquiry deleted');
+    } catch(e) {
+        toast('Error deleting inquiry');
+        console.error(e);
+    }
+    closeDeleteModal();
+}
+
+// ── Helpers ─────────────────────────────────────────────────────
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initOf(name){ return name ? name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : '?'; }
+function fmtDate(ts) {
+    if (!ts) return '';
+    const d = ts?.toDate ? ts.toDate() : new Date(ts);
+    if (isNaN(d)) return '';
+    const now = new Date();
+    if (d.toDateString()===now.toDateString()) return d.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+    if (d.getFullYear()===now.getFullYear()) return d.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+    return d.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// Icons as inline SVG strings
+function svgClock()   { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`; }
+function svgRefresh() { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 .49-3.08"/></svg>`; }
+function svgCheck()   { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`; }
+function svgX()       { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`; }
+function svgTrash()   { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`; }
+function svgReply()   { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 00-4-4H4"/></svg>`; }
+function labelIcon(l) {
+    const m = {ongoing:svgClock(),processing:svgRefresh(),complete:svgCheck()};
+    return m[l]||'';
+}
+
+function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// Close modal on overlay click
+document.getElementById('del-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+</script>
+</body>
+</html>
