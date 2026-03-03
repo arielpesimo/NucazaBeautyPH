@@ -182,6 +182,11 @@ main{flex:1;display:flex;overflow:hidden;background:var(--w);border-radius:12px 
 .arc-svc{font-size:11px;color:var(--sub);margin-top:2px}
 .arc-total{font-weight:700;color:var(--com);font-size:13px}
 .arc-empty{text-align:center;padding:48px 20px;color:var(--sub);font-size:14px;font-style:italic}
+.arc-action-btn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:16px;border:1px solid var(--b);background:var(--w);font-size:12px;font-family:'Roboto',sans-serif;font-weight:500;cursor:pointer;color:var(--tx);transition:all .15s;white-space:nowrap;flex-shrink:0}
+.arc-action-btn:hover{background:var(--hvr);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.arc-action-danger{border-color:var(--red);color:var(--red)}.arc-action-danger:hover{background:#fce8e6}
+.arc-del-btn{padding:3px 8px;border-radius:5px;border:1px solid #fce8e6;background:#fce8e6;color:var(--red);font-size:11px;cursor:pointer;font-family:'Roboto',sans-serif;font-weight:500;transition:all .15s;white-space:nowrap}
+.arc-del-btn:hover{background:#f5c6c3;border-color:#f5c6c3}
 
 /* ── MODAL ── */
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -329,10 +334,18 @@ main{flex:1;display:flex;overflow:hidden;background:var(--w);border-radius:12px 
 <!-- ═══ ARCHIVE SECTION ═══ -->
 <div id="sec-archive">
   <div class="arc-hdr">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--com)"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--com);flex-shrink:0"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
     <span class="arc-title">Completed Sessions Archive</span>
     <span class="arc-cnt" id="arc-total-cnt">0 records</span>
     <input type="text" class="arc-search" id="arc-search" placeholder="Search by name, email, or service…" oninput="renderArchive()">
+    <button class="arc-action-btn" onclick="downloadArchive()" title="Download archive as .txt">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download
+    </button>
+    <button class="arc-action-btn arc-action-danger" onclick="askArcClear()" title="Clear all archive records">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Clear All
+    </button>
   </div>
   <div class="arc-body">
     <table class="arc-table" id="arc-table">
@@ -343,6 +356,7 @@ main{flex:1;display:flex;overflow:hidden;background:var(--w);border-radius:12px 
           <th>Services</th>
           <th style="text-align:right">Total</th>
           <th>Completed On</th>
+          <th style="width:50px"></th>
         </tr>
       </thead>
       <tbody id="arc-tbody"></tbody>
@@ -353,17 +367,30 @@ main{flex:1;display:flex;overflow:hidden;background:var(--w);border-radius:12px 
 
 </div><!-- end .app -->
 
-<!-- Delete Modal -->
+<!-- Mail Delete Modal -->
 <div class="modal-ov" id="del-modal">
   <div class="modal">
     <h3>Delete this record?</h3>
-    <p>This permanently removes it from Firestore and cannot be undone.</p>
+    <p>This permanently removes it from the mail inbox. <strong>Completed sessions in the Archive are not affected.</strong></p>
     <div class="mbns">
-      <button class="mbtn mbtn-c" onclick="closeDel()">Cancel</button>
-      <button class="mbtn mbtn-d" onclick="confirmDel()">Delete</button>
+      <button class="mbtn mbtn-c" onclick="closeDel()">No</button>
+      <button class="mbtn mbtn-d" onclick="confirmDel()">Yes, Delete</button>
     </div>
   </div>
 </div>
+
+<!-- Archive Confirm Modal -->
+<div class="modal-ov" id="arc-modal">
+  <div class="modal">
+    <h3 id="arc-modal-title">Are you sure?</h3>
+    <p id="arc-modal-msg">This cannot be undone.</p>
+    <div class="mbns">
+      <button class="mbtn mbtn-c" onclick="closeArcModal()">No</button>
+      <button class="mbtn mbtn-d" onclick="confirmArcAction()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -373,10 +400,11 @@ firebase.initializeApp(fc);
 const db=firebase.firestore();
 
 // ─── State ─────────────────────────────────────────────────
-let allInq=[],allBk=[],allDaySettings={};
+let allInq=[],allBk=[],allDaySettings={},allArchive=[];
 let mailView='inbox',selId=null,selType=null;
 let admCalY,admCalM,selAdmDate=null,bkStatusFilter2='all';
 let pendDelId=null,pendDelType=null,graphMode='month';
+let pendArcDelId=null,arcDelMode=null;
 
 const NOW=new Date();
 admCalY=NOW.getFullYear(); admCalM=NOW.getMonth();
@@ -392,10 +420,15 @@ db.collection('inquiries').orderBy('timestamp','desc').onSnapshot(snap=>{
 db.collection('bookings').orderBy('timestamp','desc').onSnapshot(snap=>{
   allBk=snap.docs.map(d=>({id:d.id,data:d.data()}));
   updateCounts(); renderBkMailList(); updateStats(); renderAdmCal(); drawGraph();
-  renderArchive();
   if(selId&&selType==='bk'){const d=allBk.find(x=>x.id===selId);if(d)renderDetail('bk',d)}
   if(selAdmDate) renderDayPanel(selAdmDate);
 },e=>toast('Bookings error: '+e.message));
+
+// Archive is a SEPARATE collection — deleting a booking never touches this
+db.collection('completedArchive').orderBy('completedAt','desc').onSnapshot(snap=>{
+  allArchive=snap.docs.map(d=>({id:d.id,data:d.data()}));
+  updateCounts(); renderArchive();
+},()=>{});
 
 db.collection('daySettings').onSnapshot(snap=>{
   allDaySettings={};
@@ -432,7 +465,7 @@ function filteredInq(){
 function updateCounts(){
   const unread=allInq.filter(d=>!d.data.label&&!d.data.read).length;
   const bkNew=allBk.filter(d=>!d.data.read).length;
-  const arcN=allBk.filter(d=>d.data.status==='complete').length;
+  const arcN=allArchive.length;
   sEl('cnt-inbox',unread||'0');
   sEl('cnt-ong',allInq.filter(d=>d.data.label==='ongoing').length||'0');
   sEl('cnt-pro',allInq.filter(d=>d.data.label==='processing').length||'0');
@@ -561,19 +594,71 @@ function showDetailPlaceholder(){
 // ─── Labels & Status ─────────────────────────────────────────
 async function setInqLabel(id,lbl){const doc=allInq.find(d=>d.id===id);const nw=doc?.data.label===lbl?null:lbl;await db.collection('inquiries').doc(id).update({label:nw});toast(nw?`Labeled: ${nw}`:'Back to Inbox')}
 async function rmInqLabel(id){await db.collection('inquiries').doc(id).update({label:null});toast('Back to Inbox')}
-async function setBkStatus(id,status){await db.collection('bookings').doc(id).update({status});toast(`Status → ${status}`);if(selAdmDate)renderDayPanel(selAdmDate)}
+async function setBkStatus(id,status){
+  await db.collection('bookings').doc(id).update({status});
+  toast(`Status → ${status}`);
+  if(status==='complete'){
+    // Copy to separate archive collection so it persists even if booking is deleted
+    const doc=allBk.find(d=>d.id===id);
+    if(doc){
+      // Only add if not already in archive (check by bookingId)
+      const exists=allArchive.some(a=>a.data.bookingId===id);
+      if(!exists){
+        try{
+          await db.collection('completedArchive').add({
+            ...doc.data,
+            bookingId:id,
+            completedAt:firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }catch(e){console.error('Archive copy failed:',e)}
+      }
+    }
+  }
+  if(selAdmDate)renderDayPanel(selAdmDate);
+}
 
-// ─── Delete ──────────────────────────────────────────────────
+// ─── Delete (mail only) ──────────────────────────────────────
 function askDel(id,type){pendDelId=id;pendDelType=type;document.getElementById('del-modal').classList.add('show')}
 function closeDel(){pendDelId=null;pendDelType=null;document.getElementById('del-modal').classList.remove('show')}
 async function confirmDel(){
   if(!pendDelId)return;
   try{
+    // ONLY delete from bookings or inquiries — completedArchive is untouched
     await db.collection(pendDelType==='inq'?'inquiries':'bookings').doc(pendDelId).delete();
     if(selId===pendDelId){selId=null;selType=null;showDetailPlaceholder()}
-    toast('Deleted'); renderArchive();
+    toast('Deleted from mail');
   }catch(e){toast('Error deleting: '+e.message)}
   closeDel();
+}
+
+// ─── Archive delete / clear ───────────────────────────────────
+function askArcDel(arcId){
+  pendArcDelId=arcId; arcDelMode='single';
+  document.getElementById('arc-modal-title').textContent='Delete this record?';
+  document.getElementById('arc-modal-msg').textContent='Are you sure you want to delete this completed session from the archive? This cannot be undone.';
+  document.getElementById('arc-modal').classList.add('show');
+}
+function askArcClear(){
+  if(!allArchive.length){toast('Archive is already empty');return}
+  pendArcDelId=null; arcDelMode='all';
+  document.getElementById('arc-modal-title').textContent='Clear entire archive?';
+  document.getElementById('arc-modal-msg').textContent='Are you sure you want to delete ALL '+allArchive.length+' completed sessions? This cannot be undone.';
+  document.getElementById('arc-modal').classList.add('show');
+}
+function closeArcModal(){pendArcDelId=null;arcDelMode=null;document.getElementById('arc-modal').classList.remove('show')}
+async function confirmArcAction(){
+  if(arcDelMode==='single'&&pendArcDelId){
+    try{await db.collection('completedArchive').doc(pendArcDelId).delete();toast('Record deleted from archive')}
+    catch(e){toast('Error: '+e.message)}
+  } else if(arcDelMode==='all'){
+    try{
+      const batch=db.batch();
+      allArchive.forEach(a=>batch.delete(db.collection('completedArchive').doc(a.id)));
+      await batch.commit();
+      toast('Archive cleared');
+    }catch(e){toast('Error clearing: '+e.message)}
+  }
+  closeArcModal();
 }
 
 // ─── Stats ───────────────────────────────────────────────────
@@ -584,7 +669,7 @@ function updateStats(){
   sEl('stat-today',allBk.filter(b=>b.data.date===td).length);
   sEl('stat-month',allBk.filter(b=>b.data.date?.startsWith(ym)).length);
   sEl('stat-year',allBk.filter(b=>b.data.date?.startsWith(yr)).length);
-  sEl('stat-com',allBk.filter(b=>b.data.status==='complete').length);
+  sEl('stat-com',allArchive.length);
   sEl('stat-pnd',allBk.filter(b=>!b.data.status||b.data.status==='pending').length);
 }
 
@@ -816,18 +901,18 @@ async function saveDaySettings(dateStr){
 // ─── ARCHIVE ─────────────────────────────────────────────────
 function renderArchive(){
   const q=(document.getElementById('arc-search')?.value||'').toLowerCase().trim();
-  let data=allBk.filter(b=>b.data.status==='complete');
-  if(q) data=data.filter(b=>{
-    const d=b.data;
+  let data=[...allArchive];
+  if(q) data=data.filter(a=>{
+    const d=a.data;
     return (d.name||'').toLowerCase().includes(q)||
            (d.email||'').toLowerCase().includes(q)||
            (d.services||[]).some(s=>(s.name||'').toLowerCase().includes(q));
   });
-  // Sort newest first
   data.sort((a,b)=>(b.data.date||'').localeCompare(a.data.date||''));
   const tbody=document.getElementById('arc-tbody');
   const empty=document.getElementById('arc-empty');
-  sEl('arc-total-cnt',allBk.filter(b=>b.data.status==='complete').length+' record'+(allBk.filter(b=>b.data.status==='complete').length!==1?'s':''));
+  const total=allArchive.length;
+  sEl('arc-total-cnt',total+' record'+(total!==1?'s':''));
   if(!data.length){tbody.innerHTML='';empty.style.display='block';return}
   empty.style.display='none';
   tbody.innerHTML=data.map(doc=>{
@@ -835,16 +920,56 @@ function renderArchive(){
     const dateDisp=d.date?new Date(d.date+'T12:00:00').toLocaleDateString('en-PH',{weekday:'short',year:'numeric',month:'short',day:'numeric'}):'—';
     const timeDisp=d.startTime?fmtT(d.startTime)+(d.endTime?' – '+fmtT(d.endTime):''):'—';
     const svcsStr=(d.services||[]).map(s=>s.name).join(', ')||'—';
-    const completedOn=d.timestamp?.toDate?d.timestamp.toDate().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}):'—';
+    const completedOn=d.completedAt?.toDate?d.completedAt.toDate().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}):(d.timestamp?.toDate?d.timestamp.toDate().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}):'—');
     return`<tr>
-      <td><div style="font-weight:500;">${esc(d.name||'?')}</div><div style="font-size:11px;color:var(--sub);">${esc(d.email||'—')}</div>${d.phone?`<div style="font-size:11px;color:var(--sub);">${esc(d.phone)}</div>`:''}
-      </td>
+      <td><div style="font-weight:500;">${esc(d.name||'?')}</div><div style="font-size:11px;color:var(--sub);">${esc(d.email||'—')}</div>${d.phone?`<div style="font-size:11px;color:var(--sub);">${esc(d.phone)}</div>`:''}</td>
       <td><div>${dateDisp}</div><div style="font-size:11px;color:var(--sub);">${timeDisp}</div></td>
       <td style="max-width:200px;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;" title="${esc(svcsStr)}">${esc(svcsStr)}</div></td>
       <td style="text-align:right;" class="arc-total">₱${(d.total||0).toLocaleString()}</td>
       <td style="font-size:11px;color:var(--sub);">${completedOn}</td>
+      <td style="text-align:center;"><button class="arc-del-btn" onclick="askArcDel('${doc.id}')">Delete</button></td>
     </tr>`;
   }).join('');
+}
+
+function downloadArchive(){
+  if(!allArchive.length){toast('No records to download');return}
+  const now=new Date();
+  const dateTag=`${now.getMonth()+1}-${now.getDate()}-${now.getFullYear()}`;
+  const sorted=[...allArchive].sort((a,b)=>(b.data.date||'').localeCompare(a.data.date||''));
+  const lines=[
+    '================================================',
+    '   NUCAZA BEAUTY PH — COMPLETED SESSIONS LOG',
+    `   Downloaded: ${now.toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`,
+    `   Total Records: ${allArchive.length}`,
+    '================================================',
+    ''
+  ];
+  sorted.forEach((doc,i)=>{
+    const d=doc.data;
+    const dateDisp=d.date?new Date(d.date+'T12:00:00').toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'}):'—';
+    const timeDisp=d.startTime?fmtT(d.startTime)+(d.endTime?' – '+fmtT(d.endTime):''):'—';
+    const svcsStr=(d.services||[]).map(s=>`${s.name} (₱${(s.price||0).toLocaleString()})`).join(', ')||'—';
+    const completedOn=d.completedAt?.toDate?d.completedAt.toDate().toLocaleDateString('en-PH',{month:'long',day:'numeric',year:'numeric'}):'—';
+    lines.push(`[${String(i+1).padStart(3,'0')}] ${d.name||'Unknown'}`);
+    lines.push(`  Email    : ${d.email||'—'}`);
+    lines.push(`  Phone    : ${d.phone||'—'}`);
+    lines.push(`  Date     : ${dateDisp}`);
+    lines.push(`  Time     : ${timeDisp}`);
+    lines.push(`  Services : ${svcsStr}`);
+    lines.push(`  Total    : ₱${(d.total||0).toLocaleString()}`);
+    lines.push(`  Completed: ${completedOn}`);
+    if(d.message) lines.push(`  Note     : ${d.message}`);
+    lines.push('------------------------------------------------');
+  });
+  lines.push('');lines.push('End of archive.');
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`archive ${dateTag}.txt`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url)},100);
+  toast('Downloaded: archive '+dateTag+'.txt');
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -868,6 +993,7 @@ function svgPath(n){const m={'clock':'<circle cx="12" cy="12" r="10"/><path d="M
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
 document.getElementById('del-modal').addEventListener('click',function(e){if(e.target===this)closeDel()});
+document.getElementById('arc-modal').addEventListener('click',function(e){if(e.target===this)closeArcModal()});
 </script>
 </body>
 </html>
