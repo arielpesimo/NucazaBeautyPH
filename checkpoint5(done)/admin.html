@@ -201,73 +201,7 @@ main{flex:1;display:flex;overflow:hidden;background:var(--w);border-radius:12px 
 /* Toast */
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#323232;color:#fff;font-size:13px;padding:9px 18px;border-radius:6px;transition:transform .3s;z-index:9999;pointer-events:none;white-space:nowrap}
 #toast.show{transform:translateX(-50%) translateY(0)}
-/* ══ MOBILE RESPONSIVE ══ */
-@media(max-width:768px){
-  body{overflow:auto;height:auto;min-height:100vh}
-  header{padding:0 12px;gap:6px;height:52px;position:sticky;top:0;z-index:200}
-  .logo-t{font-size:14px}.logo-s{display:none}
-  .logo img{width:28px;height:28px}
-  .tab-nav{margin-left:8px;gap:2px}
-  .tab-btn{padding:5px 10px;font-size:11px;gap:4px}
-  .tab-btn svg{width:13px;height:13px}
-  .hdr-r .badge{display:none}
-  .live{font-size:10px;padding:2px 7px}
-  .app{flex-direction:column;overflow:visible;height:auto}
-  /* Sidebar becomes a compact horizontal scrollable filter row on mobile */
-  aside{width:100%;height:auto;overflow-x:auto;overflow-y:hidden;padding:6px 0;border-bottom:1px solid var(--b);display:flex;flex-direction:row;flex-shrink:0;background:var(--bg)}
-  aside .nav-sec{display:none}
-  aside .divhr{display:none}
-  .nav-i{border-radius:20px;margin:0 3px;padding:6px 12px;white-space:nowrap;font-size:12px}
-  .nav-i svg{width:14px;height:14px}
-  /* Main fills remaining space */
-  main{border-radius:0;margin:0;border-left:none;border-right:none;border-radius:0;overflow:visible;min-height:0}
-  /* Mail section: single column — show list by default, detail on select */
-  #sec-mail{flex-direction:column;overflow:visible;height:auto}
-  .col-list{width:100%;flex-shrink:0;border-right:none;border-bottom:1px solid var(--b);max-height:none}
-  .col-scroll{max-height:320px;overflow-y:auto}
-  .detail{padding:14px 12px;overflow:visible}
-  /* Book section stacks vertically */
-  #sec-book{flex-direction:column;overflow:visible;height:auto;border-radius:0;margin:0}
-  .stats-row{flex-wrap:wrap;overflow:visible}
-  .stat-card{min-width:calc(50% - 1px);padding:10px 14px}
-  .stat-card:nth-child(2){border-right:1px solid var(--b)}
-  .stat-card:nth-child(3){border-right:none}
-  .stat-card:last-child{border-right:none}
-  .graph-panel{padding:10px 12px 8px}
-  .graph-wrap{height:120px}
-  .book-body{flex-direction:column;overflow:visible;min-height:0}
-  .cal-area{border-right:none;border-bottom:1px solid var(--b);padding:10px 10px;overflow:visible}
-  .acal-day{height:44px}
-  .status-filter{flex-wrap:wrap;gap:3px}
-  .sf-btn{font-size:9px;padding:2px 8px}
-  .day-panel{width:100%;border-left:none}
-  .dp-body{overflow:visible;max-height:none}
-  /* Archive */
-  #sec-archive{flex-direction:column;overflow:visible;height:auto;border-radius:0;margin:0}
-  .arc-hdr{flex-wrap:wrap;gap:8px;padding:12px 14px}
-  .arc-search{max-width:100%;flex:1 1 100%;order:10}
-  .arc-body{padding:10px 10px;overflow:visible}
-  .arc-table{font-size:12px}
-  .arc-table th{font-size:9px;padding:6px 8px}
-  .arc-table td{padding:8px 8px}
-  /* Hide non-essential archive columns on small screens */
-  .arc-table th:nth-child(3),.arc-table td:nth-child(3){display:none}
-  /* Detail panel buttons wrap nicely */
-  .dtb{gap:4px}
-  .abtn{padding:5px 9px;font-size:11px}
-  /* Day panel time adjuster */
-  .ta-row{flex-wrap:wrap}
-  .ta-save{width:100%;margin-top:4px}
-  /* Modals full-width on mobile */
-  .modal{width:calc(100vw - 32px);padding:20px 18px}
-}
-@media(max-width:480px){
-  .tab-btn span:not(.tbadge){display:none}
-  .tab-btn{padding:6px 10px}
-  .stat-card{min-width:50%}
-  .dtb .abtn span{display:none}
-  .dtb .abtn svg{width:14px;height:14px}
-}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#bbb}
 </style>
 </head>
 <body>

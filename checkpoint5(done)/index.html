@@ -55,7 +55,6 @@ body{background-color:#f5ebdf}
 .cal-day:disabled{cursor:not-allowed;opacity:.4}
 .svc-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.6);border:1px solid rgba(217,176,82,.2);margin-bottom:8px;transition:border-color .2s}
 .svc-item.incart{border-color:rgba(217,176,82,.6);background:rgba(217,176,82,.08)}
-.svc-item.addon-item{background:rgba(245,235,223,.8);border-style:dashed}
 .add-btn{padding:5px 14px;border-radius:20px;border:1px solid rgba(217,176,82,.5);background:none;font-size:12px;font-family:'Playfair Display',serif;cursor:pointer;color:#27211a;transition:all .2s}
 .add-btn:hover,.add-btn.added{background:linear-gradient(135deg,#27211a,#d9b052);color:#fff;border-color:transparent}
 .cart-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(217,176,82,.2)}
@@ -110,28 +109,29 @@ body{background-color:#f5ebdf}
 
 <!-- HERO -->
 <section class="relative pt-24 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
+  <div class="absolute inset-0 opacity-10"><img src="http://static.photos/cosmetic/1920x1080/1" alt="" class="w-full h-full object-cover"></div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <span class="font-display text-gold text-lg tracking-[0.3em] uppercase mb-4 block">Est. 2019</span>
+    <span class="font-display text-gold text-lg tracking-[0.3em] uppercase mb-4 block">Est. 2022</span>
     <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-medium text-gradient mb-6 leading-tight">Nucaza Beauty PH</h1>
     <div class="w-24 h-0.5 divider-gold mx-auto mb-6"></div>
-    <div class="mb-6 inline-block bg-dark/5 border border-gold/30 rounded-full px-6 py-2">
+    <div class="mb-6 inline-block bg-white/40 border border-gold/30 rounded-full px-6 py-2">
       <p class="font-display text-dark/80 text-sm tracking-wider">✨ New Clinic Soon &nbsp;•&nbsp; Owner-handled beauty services</p>
       <p class="font-display text-dark/70 text-xs tracking-wider mt-0.5">Same Standards • Same Quality</p>
     </div>
     <p class="font-body text-dark/80 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">Premium Permanent Makeup &amp; Advanced Aesthetic Services. Where precision meets artistry for your most beautiful self.</p>
     <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
       <a href="services.html" class="font-display bg-gradient-to-r from-dark to-gold text-white px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:shadow-xl transition-all duration-300 hover:scale-105">View Services</a>
-      <a href="#contact" class="font-display border-2 border-dark/30 text-dark px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:border-gold hover:text-gold transition-all duration-300">Book Consultation</a>
+      <a onclick="openBookingModal()" class="font-display border-2 border-dark/30 text-dark px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:border-gold hover:text-gold transition-all duration-300">Book Consultation</a>
     </div>
   </div>
 </section>
 
 <!-- SERVICES PREVIEW -->
-<section class="py-20" style="background:rgba(245,235,223,.6)">
+<section class="py-20 bg-white/30">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-16">
-    
-      <h2 class="font-display text-4xl md:text-5xl font-medium mt-2 mb-4" style="background:linear-gradient(135deg,#27211a 0%,#d9b052 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:inline-block;padding-bottom:5px;">Signature Services</h2>
+      <span class="font-display text-gold text-sm tracking-[0.3em] uppercase">Our Specialties</span>
+      <h2 class="font-display text-4xl md:text-5xl font-medium text-gradient mt-2 mb-4">Signature Services</h2>
       <div class="w-16 h-0.5 divider-gold mx-auto"></div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -144,8 +144,8 @@ body{background-color:#f5ebdf}
       <div class="service-card rounded-2xl p-8 hover-lift cursor-pointer group">
         <div class="w-12 h-12 bg-gradient-to-br from-dark to-gold rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300"><i data-lucide="smile" class="text-white w-6 h-6"></i></div>
         <h3 class="font-display text-2xl font-medium text-gradient mb-3">PMU Advanced</h3>
-        <p class="text-dark/70 text-sm leading-relaxed mb-4">Lip blush, lash line enhancement, and color correction for natural, long-lasting beauty.</p>
-        <span class="text-gold font-display text-sm">From ₱2,999</span>
+        <p class="text-dark/70 text-sm leading-relaxed mb-4">Lip blush, color correction, and reconstruction for natural, long-lasting beauty.</p>
+        <span class="text-gold font-display text-sm">From ₱1,500</span>
       </div>
       <div class="service-card rounded-2xl p-8 hover-lift cursor-pointer group">
         <div class="w-12 h-12 bg-gradient-to-br from-dark to-gold rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300"><i data-lucide="eye" class="text-white w-6 h-6"></i></div>
@@ -174,12 +174,10 @@ body{background-color:#f5ebdf}
             <div class="dot active" onclick="goToSlide(0)"></div>
             <div class="dot" onclick="goToSlide(1)"></div>
             <div class="dot" onclick="goToSlide(2)"></div>
-            <div class="dot" onclick="goToSlide(3)"></div>
-            <div class="dot" onclick="goToSlide(4)"></div>
           </div>
         </div>
-        <div class="absolute -bottom-6 -right-6 bg-cream border border-gold/30 p-6 rounded-2xl shadow-xl z-10">
-          <span class="font-display text-4xl font-bold text-gradient">6+</span>
+        <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl z-10">
+          <span class="font-display text-4xl font-bold text-gradient">3+</span>
           <p class="text-dark/60 text-sm mt-1">Years Experience</p>
         </div>
       </div>
@@ -199,8 +197,9 @@ body{background-color:#f5ebdf}
 </section>
 
 <!-- CTA -->
-<section id="Book" class="py-20 relative overflow-hidden">
+<section class="py-20 relative overflow-hidden">
   <div class="absolute inset-0 bg-gradient-to-r from-dark/90 to-gold/90"></div>
+  <img src="http://static.photos/cosmetic/1920x800/3" alt="" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50">
   <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
     <h2 class="font-display text-4xl md:text-5xl font-medium text-white mb-6">Ready to Transform?</h2>
     <p class="text-white/90 text-lg mb-8 max-w-2xl mx-auto">Book your consultation today and discover the perfect treatment plan customized for your beauty goals.</p>
@@ -209,7 +208,7 @@ body{background-color:#f5ebdf}
 </section>
 
 <!-- CONTACT / INQUIRY -->
-<section id="contact" class="py-20" style="background:rgba(245,235,223,.6)">
+<section id="contact" class="py-20 bg-white/30">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-16">
       <span class="font-display text-gold text-sm tracking-[0.3em] uppercase">Get in Touch</span>
@@ -224,7 +223,7 @@ body{background-color:#f5ebdf}
         </div>
         <div class="flex items-start space-x-4">
           <div class="w-12 h-12 bg-gradient-to-br from-dark to-gold rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="mail" class="text-white w-5 h-5"></i></div>
-          <div><h4 class="font-display text-lg font-medium text-dark mb-1">Email</h4><p class="text-dark/70"><a href="/cdn-cgi/l/email-protection#157b6076746f7477707460616c557278747c793b767a78" class="hover:text-gold transition-colors"><span class="__cf_email__" data-cfemail="422c372123382320272337363b02252f232b2e6c212d2f">[email&#160;protected]</span></a></p></div>
+          <div><h4 class="font-display text-lg font-medium text-dark mb-1">Email</h4><p class="text-dark/70"><a href="mailto:nucazabeauty@gmail.com" class="hover:text-gold transition-colors">nucazabeauty@gmail.com</a></p></div>
         </div>
         <div class="flex items-start space-x-4">
           <div class="w-12 h-12 bg-gradient-to-br from-dark to-gold rounded-full flex items-center justify-center flex-shrink-0"><i data-lucide="clock" class="text-white w-5 h-5"></i></div>
@@ -268,7 +267,7 @@ body{background-color:#f5ebdf}
           <span class="font-display text-2xl font-bold text-gold">Nucaza Beauty PH</span>
         </div>
         <p class="mt-1 text-gold/70 text-xs tracking-wider">✨ New Clinic Soon • Owner-handled beauty services</p>
-        <p class="mt-4 text-white/60 text-sm leading-relaxed max-w-sm">Premium permanent makeup and aesthetic services. Same Standards • Same Quality since 2019.</p>
+        <p class="mt-4 text-white/60 text-sm leading-relaxed max-w-sm">Premium permanent makeup and aesthetic services. Same Standards • Same Quality since 2022.</p>
       </div>
       <div>
         <h4 class="font-display text-gold mb-4 text-sm tracking-wider uppercase">Quick Links</h4>
@@ -283,9 +282,9 @@ body{background-color:#f5ebdf}
         <h4 class="font-display text-gold mb-4 text-sm tracking-wider uppercase">Contact</h4>
         <ul class="space-y-3 text-sm text-white/60">
           <li>
-            <a href="/cdn-cgi/l/email-protection#09677c6a6873686b6c687c7d70496e64686065276a6664" class="hover:text-gold transition-colors flex items-center gap-2">
+            <a href="mailto:nucazabeauty@gmail.com" class="hover:text-gold transition-colors flex items-center gap-2">
               <img src="gmail.png" alt="Email" style="width:16px;height:16px;object-fit:cover;border-radius:2px;flex-shrink:0;">
-              <span class="__cf_email__" data-cfemail="a4cad1c7c5dec5c6c1c5d1d0dde4c3c9c5cdc88ac7cbc9">[email&#160;protected]</span>
+              nucazabeauty@gmail.com
             </a>
           </li>
           <li>
@@ -302,7 +301,7 @@ body{background-color:#f5ebdf}
       </div>
     </div>
     <div class="border-t border-white/10 mt-12 pt-8 text-center text-white/40 text-xs">
-      <p>&copy; 2019 Nucaza Beauty PH. All rights reserved.</p>
+      <p>&copy; 2022 Nucaza Beauty PH. All rights reserved.</p>
     </div>
   </div>
 </footer>
@@ -404,12 +403,12 @@ body{background-color:#f5ebdf}
             <div style="margin-bottom:14px;">
               <label style="display:block;font-family:'Playfair Display',serif;font-size:13px;color:#27211a;margin-bottom:6px;">Email <span style="color:#d9b052;">*</span></label>
               <input id="bk-email" type="text" class="bk-fi" placeholder="yourname@gmail.com">
-              <p id="bke-email" class="ferr">Enter a valid email (e.g. <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d2bcb3bfb792b5bfb3bbbefcb1bdbf">[email&#160;protected]</a>).</p>
+              <p id="bke-email" class="ferr">Enter a valid email (e.g. name@gmail.com).</p>
             </div>
             <div style="margin-bottom:14px;">
               <label style="display:block;font-family:'Playfair Display',serif;font-size:13px;color:#27211a;margin-bottom:6px;">Phone <span style="color:#d9b052;">*</span></label>
               <div style="display:flex;border-radius:8px;overflow:hidden;border:1px solid rgba(217,176,82,.3);background:rgba(255,255,255,.6);" id="bk-pwrap">
-                <span style="display:flex;align-items:center;padding:0 12px;background:rgba(217,176,82,.1);border-right:1px solid rgba(217,176,82,.3);font-size:14px;font-family:'Playfair Display',serif;color:#27211a;user-select:none;white-space:nowrap;">🇵🇭 +63</span>
+                <span style="display:flex;align-items:center;padding:0 12px;background:rgba(217,176,82,.1);border-right:1px solid rgba(217,176,82,.3);font-size:14px;font-family:'Playfair Display',serif;color:#27211a;user-select:none;white-space:nowrap;">&#127477;&#127469; +63</span>
                 <input id="bk-phone" type="text" inputmode="numeric" style="flex:1;padding:11px 12px;background:transparent;border:none;outline:none;font-family:'Inter',sans-serif;font-size:14px;color:#27211a;" placeholder="9XXXXXXXXX" maxlength="10">
               </div>
               <p id="bke-phone" class="ferr">Must be exactly 10 digits after +63.</p>
@@ -424,6 +423,7 @@ body{background-color:#f5ebdf}
       </div>
     </div>
 
+    <!-- Footer — hidden after submit -->
     <div class="bk-ftr" id="bk-ftr">
       <button id="bk-back" onclick="bkBack()" style="display:none;padding:10px 24px;border-radius:20px;border:1px solid rgba(39,33,26,.2);background:none;font-family:'Playfair Display',serif;font-size:13px;cursor:pointer;color:#27211a;transition:all .2s;" onmouseover="this.style.borderColor='#d9b052';this.style.color='#d9b052'" onmouseout="this.style.borderColor='rgba(39,33,26,.2)';this.style.color='#27211a'">&#8592; Back</button>
       <div style="flex:1;"></div>
@@ -432,17 +432,19 @@ body{background-color:#f5ebdf}
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
+// Firebase
 const firebaseConfig={apiKey:"AIzaSyAwhYe2ALNw6L7LOkxjf8CmK6HHSHi24Kc",authDomain:"nucaza-7b296.firebaseapp.com",projectId:"nucaza-7b296",storageBucket:"nucaza-7b296.firebasestorage.app",messagingSenderId:"486744794753",appId:"1:486744794753:web:8adc954f7d7f69d8e18f80"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+
 lucide.createIcons();
 function toggleMobileMenu(){document.getElementById('mobile-menu').classList.toggle('hidden')}
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'})}));
 window.addEventListener('scroll',()=>{document.querySelector('nav').classList.toggle('shadow-md',window.scrollY>50)});
 
-// Carousel — 5 photos
-const photos=['photo1.jpg','photo2.jpg','photo3.jpg','photo4.jpg','photo5.jpg'];
+// Carousel
+const photos=['photo1.jpg','photo2.jpg','photo3.jpg'];
 let cur=0,aTimer=null;
 const imgEl=document.getElementById('carousel-img'),bPrev=document.getElementById('btn-prev'),bNext=document.getElementById('btn-next'),cdots=document.querySelectorAll('.dot');
 function updateCarousel(a){if(a){imgEl.style.opacity='0';imgEl.style.transform='scale(1.04)';setTimeout(()=>{imgEl.src=photos[cur];imgEl.style.opacity='1';imgEl.style.transform='scale(1)'},280)}else imgEl.src=photos[cur];bPrev.style.display=cur===0?'none':'flex';bNext.style.display=cur===photos.length-1?'none':'flex';cdots.forEach((d,i)=>d.classList.toggle('active',i===cur))}
@@ -491,43 +493,12 @@ function resetInq(){
 }
 
 // ===================== BOOKING MODAL =====================
-// addon:true = displayed in add-on subsection, dashed border, badge label
 const SVCLIST=[
-  {cat:'Signature Brow',items:[
-    {n:'Premium Eyebrow Microblading',p:3999},
-    {n:'Premium Combination Brows',p:4599},
-    {n:'Premium Ombre Brows',p:4599},
-    {n:'Pra Nana Blading Brow',p:7999},
-    {n:'Second Session (Touch-up)',p:1599}
-  ]},
-  {cat:'PMU Advanced',items:[
-    {n:'Lip Blush',p:4499},
-    {n:'Classic Lash Line Enhancement',p:2999},
-    {n:'Eyebrow Color Correction',p:1500},
-    {n:'Lip Color Correction',p:1500,addon:true},
-    {n:'Eyebrow Reconstruction',p:1500,addon:true}
-  ]},
-  {cat:'Japanese Lashes',items:[
-    {n:'Tokyo Soft Natural Lashes',p:1800},
-    {n:'Tokyo Volume Lashes',p:2500},
-    {n:'Lash Lift',p:699},
-    {n:'Lash Lift + Tint',p:800}
-  ]},
-  {cat:'RF Microneedling',items:[
-    {n:'RF Microneedling — Face',p:5999},
-    {n:'RF Microneedling — Neck',p:4999},
-    {n:'RF Microneedling — Stretch Marks',p:3500}
-  ]},
-  {cat:'Laser Treatment',items:[
-    {n:'Pica Laser Skin Rejuvenation',p:3999},
-    {n:'Carbon Laser',p:2000},
-    {n:'Body Brightening — Underarm',p:2000},
-    {n:'Body Brightening — Neck',p:2000},
-    {n:'Body Brightening — Elbow',p:1500},
-    {n:'Body Brightening — Knee',p:1500},
-    {n:'Body Brightening — Bikini',p:2500},
-    {n:'Body Brightening — Inner Line',p:3000}
-  ]}
+  {cat:'Signature Brow',items:[{n:'Premium Eyebrow Microblading',p:3999},{n:'Premium Combination Brows',p:4599},{n:'Premium Ombre Brows',p:4599},{n:'Pra Nana Blading Brow',p:7999},{n:'Second Session (Touch-up)',p:1599}]},
+  {cat:'PMU Advanced',items:[{n:'Lip Blush',p:4499},{n:'Lip Color Correction',p:1500},{n:'Classic Lash Line Enhancement',p:2999},{n:'Eyebrow Color Correction',p:1500},{n:'Eyebrow Reconstruction',p:1500}]},
+  {cat:'Japanese Lashes',items:[{n:'Tokyo Soft Natural Lashes',p:1800},{n:'Tokyo Volume Lashes',p:2500},{n:'Lash Lift',p:699},{n:'Lash Lift + Tint',p:800}]},
+  {cat:'RF Microneedling',items:[{n:'RF Microneedling — Face',p:5999},{n:'RF Microneedling — Neck',p:4999},{n:'RF Microneedling — Stretch Marks',p:3500}]},
+  {cat:'Laser Treatment',items:[{n:'Pica Laser Skin Rejuvenation',p:3999},{n:'Carbon Laser',p:2000},{n:'Body Brightening — Underarm',p:2000},{n:'Body Brightening — Neck',p:2000},{n:'Body Brightening — Elbow',p:1500},{n:'Body Brightening — Knee',p:1500},{n:'Body Brightening — Bikini',p:2500},{n:'Body Brightening — Inner Line',p:3000}]}
 ];
 
 let bkStep=1,calYear,calMonth,selDate=null,selStart=null,selEnd=null,cart=[];
@@ -641,26 +612,19 @@ function updateEndTimes(){
 
 function renderServices(){
   const el=document.getElementById('svc-list');
-  el.innerHTML=SVCLIST.map(cat=>{
-    const main=cat.items.filter(i=>!i.addon);
-    const addons=cat.items.filter(i=>i.addon);
-    return`<div style="margin-bottom:20px;">
-      <h4 style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:#27211a;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(217,176,82,.25);">${cat.cat}</h4>
-      ${main.map(item=>{const inCart=cart.some(c=>c.n===item.n);return`<div class="svc-item${inCart?' incart':''}"><div><div style="font-size:13px;font-weight:500;color:#27211a;">${item.n}</div><div style="font-size:12px;color:#d9b052;font-family:'Playfair Display',serif;font-weight:600;margin-top:2px;">&#8369;${item.p.toLocaleString()}</div></div><button class="add-btn${inCart?' added':''}" onclick="toggleCart('${item.n.replace(/'/g,"\\'")}',${item.p})">${inCart?'\u2713 Added':'+ Add'}</button></div>`}).join('')}
-      ${addons.length?`<div style="margin-top:10px;padding:10px 12px;background:rgba(217,176,82,.06);border:1px dashed rgba(217,176,82,.4);border-radius:10px;">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:rgba(39,33,26,.4);margin-bottom:8px;">✦ Add-ons</div>
-        ${addons.map(item=>{const inCart=cart.some(c=>c.n===item.n);return`<div class="svc-item addon-item${inCart?' incart':''}"><div><div style="font-size:13px;font-weight:500;color:#27211a;display:flex;align-items:center;gap:7px;">${item.n}<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:10px;background:rgba(217,176,82,.25);color:#a07820;white-space:nowrap;">Add-on</span></div><div style="font-size:12px;color:#d9b052;font-family:'Playfair Display',serif;font-weight:600;margin-top:2px;">&#8369;${item.p.toLocaleString()}</div></div><button class="add-btn${inCart?' added':''}" onclick="toggleCart('${item.n.replace(/'/g,"\\'")}',${item.p})">${inCart?'\u2713 Added':'+ Add'}</button></div>`}).join('')}
-      </div>`:''}
-    </div>`;
-  }).join('');
+  el.innerHTML=SVCLIST.map(cat=>`
+    <div style="margin-bottom:18px;">
+      <h4 style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:#27211a;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(217,176,82,.2);">${cat.cat}</h4>
+      ${cat.items.map(item=>{const inCart=cart.some(c=>c.n===item.n);return`<div class="svc-item${inCart?' incart':''}"><div><div style="font-size:13px;font-weight:500;color:#27211a;">${item.n}</div><div style="font-size:12px;color:#d9b052;font-family:'Playfair Display',serif;font-weight:600;margin-top:2px;">&#8369;${item.p.toLocaleString()}</div></div><button class="add-btn${inCart?' added':''}" onclick="toggleCart('${item.n.replace(/'/g,"\\'")}',${item.p})">${inCart?'\u2713 Added':'+ Add'}</button></div>`}).join('')}
+    </div>`).join('');
 }
 function toggleCart(name,price){const idx=cart.findIndex(c=>c.n===name);if(idx>=0)cart.splice(idx,1);else cart.push({n:name,p:price});renderServices();renderCart()}
 function renderCart(){
   const el=document.getElementById('cart-items');
-  if(!cart.length){el.innerHTML='<p style="font-size:13px;color:rgba(39,33,26,.4);font-style:italic;text-align:center;padding:20px 0;">No services added yet</p>';document.getElementById('cart-count').textContent='0';document.getElementById('cart-total').innerHTML='&#8369;0';return}
+  if(!cart.length){el.innerHTML='<p style="font-size:13px;color:rgba(39,33,26,.4);font-style:italic;text-align:center;padding:20px 0;">No services added yet</p>';document.getElementById('cart-count').textContent='0';document.getElementById('cart-total').textContent='&#8369;0';return}
   el.innerHTML=cart.map(c=>`<div class="cart-item"><div><div style="font-size:12px;font-weight:500;color:#27211a;line-height:1.3;">${c.n}</div><div style="font-size:12px;color:#d9b052;">&#8369;${c.p.toLocaleString()}</div></div><button class="rm-btn" onclick="toggleCart('${c.n.replace(/'/g,"\\'")}',${c.p})">\u00d7</button></div>`).join('');
   document.getElementById('cart-count').textContent=cart.length;
-  document.getElementById('cart-total').innerHTML='₱'+cart.reduce((s,c)=>s+c.p,0).toLocaleString();
+  document.getElementById('cart-total').textContent='&#8369;'+cart.reduce((s,c)=>s+c.p,0).toLocaleString();
 }
 
 function bkNext(){
@@ -708,6 +672,7 @@ async function submitBooking(){
       message:document.getElementById('bk-msg').value.trim()||'',
       status:'pending',timestamp:firebase.firestore.FieldValue.serverTimestamp(),read:false
     });
+    // Hide form AND footer, show success — no buttons visible after submit
     document.getElementById('bk-form').style.display='none';
     document.getElementById('bk-ftr').style.display='none';
     document.getElementById('bk-success-msg').style.display='block';
@@ -717,6 +682,7 @@ async function submitBooking(){
     const e=document.getElementById('bk-err');e.textContent='Error: '+err.message;e.style.display='block';
   }
 }
+
 function resetBookingModal(){
   // Keep modal OPEN — restart everything from Step 1
   bkStep=1;selDate=null;selStart=null;selEnd=null;cart=[];
